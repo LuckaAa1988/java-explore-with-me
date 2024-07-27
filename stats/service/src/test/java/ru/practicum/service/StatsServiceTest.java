@@ -90,6 +90,7 @@ public class StatsServiceTest {
                 () -> assertEquals(1, responses.get(0).getHits())
         );
     }
+
     @Test
     void getStatsNoUriUniqueTest() {
         when(statsRepository.findAllWithOutUrisUnique(any(LocalDateTime.class), any(LocalDateTime.class)))
@@ -106,6 +107,7 @@ public class StatsServiceTest {
                 () -> assertEquals(1, responses.get(0).getHits())
         );
     }
+
     @Test
     void getStatsWithUriNoUniqueTest() {
         when(statsRepository.findALlWithUris(any(LocalDateTime.class), any(LocalDateTime.class), any(String[].class)))
@@ -123,6 +125,7 @@ public class StatsServiceTest {
                 () -> assertEquals(1, responses.get(0).getHits())
         );
     }
+
     @Test
     void getStatsWithUriUniqueTest() {
         when(statsRepository.findALlWithUrisUnique(any(LocalDateTime.class), any(LocalDateTime.class), any(String[].class)))
