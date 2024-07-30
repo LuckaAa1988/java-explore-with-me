@@ -31,7 +31,7 @@ public class StatsClient extends BaseClient {
                 serverUrl
         );
     }
-    
+
     public void save(HitRequest hitRequest) {
         post("/hit", hitRequest);
     }
