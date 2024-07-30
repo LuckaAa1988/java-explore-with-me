@@ -26,9 +26,30 @@ services:
       - POSTGRES_USER=statsuser
       - POSTGRES_PASSWORD=12345
 
-#  ewm-service:
-#    ports:
-#      - "8080:8080"
-#
-#  ewm-db:
-#    image: postgres:14-alpine
+  ewm-service:
+    build: main
+    container_name: main_container
+    ports:
+      - "8080:8080"
+    depends_on:
+      - ewm-db
+      - stats-server
+    environment:
+      - DB_NAME=ewm
+      - POSTGRES_USER=ewmuser
+      - POSTGRES_PASSWORD=12345
+      - DB_HOST=ewm-db
+      - DB_PORT=5432
+      - STATS_SERVER_URL=http://stats-server:9090
+
+  ewm-db:
+    container_name: ewm_db_container
+    image: postgres:14-alpine
+    ports:
+      - "5433:5432"
+    volumes:
+      - /var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=ewm
+      - POSTGRES_USER=ewmuser
+      - POSTGRES_PASSWORD=12345

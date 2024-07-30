@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.entity.Hit;
+import ru.practicum.exception.model.DateException;
 import ru.practicum.mapper.HitMapper;
 import ru.practicum.repository.StatsRepository;
 import ru.practicum.request.HitRequest;
@@ -75,7 +76,7 @@ public class StatsServiceTest {
     }
 
     @Test
-    void getStatsNoUriNoUniqueTest() {
+    void getStatsNoUriNoUniqueTest() throws DateException {
         when(statsRepository.findAllWithOutUris(any(LocalDateTime.class), any(LocalDateTime.class)))
                 .thenReturn(Collections.singletonList(hitResponse));
 
@@ -92,7 +93,7 @@ public class StatsServiceTest {
     }
 
     @Test
-    void getStatsNoUriUniqueTest() {
+    void getStatsNoUriUniqueTest() throws DateException {
         when(statsRepository.findAllWithOutUrisUnique(any(LocalDateTime.class), any(LocalDateTime.class)))
                 .thenReturn(Collections.singletonList(hitResponse));
 
@@ -109,7 +110,7 @@ public class StatsServiceTest {
     }
 
     @Test
-    void getStatsWithUriNoUniqueTest() {
+    void getStatsWithUriNoUniqueTest() throws DateException {
         when(statsRepository.findALlWithUris(any(LocalDateTime.class), any(LocalDateTime.class), any(String[].class)))
                 .thenReturn(Collections.singletonList(hitResponse));
 
@@ -127,7 +128,7 @@ public class StatsServiceTest {
     }
 
     @Test
-    void getStatsWithUriUniqueTest() {
+    void getStatsWithUriUniqueTest() throws DateException {
         when(statsRepository.findALlWithUrisUnique(any(LocalDateTime.class), any(LocalDateTime.class), any(String[].class)))
                 .thenReturn(Collections.singletonList(hitResponse));
 
