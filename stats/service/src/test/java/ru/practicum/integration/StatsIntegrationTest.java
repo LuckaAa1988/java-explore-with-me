@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.practicum.entity.Hit;
+import ru.practicum.exception.model.DateException;
 import ru.practicum.repository.StatsRepository;
 import ru.practicum.response.HitResponse;
 import ru.practicum.service.impl.StatsServiceImpl;
@@ -49,7 +50,7 @@ public class StatsIntegrationTest {
     }
 
     @Test
-    void getStatsWithUrisNotUniqueTest() {
+    void getStatsWithUrisNotUniqueTest() throws DateException {
         String start = "2021-09-06 11:00:23";
         String end = "2035-09-06 11:00:23";
         String[] uris = new String[]{"/events/1"};
@@ -66,7 +67,7 @@ public class StatsIntegrationTest {
     }
 
     @Test
-    void getStatsWithNoUrisNotUniqueTest() {
+    void getStatsWithNoUrisNotUniqueTest() throws DateException {
         String start = "2021-09-06 11:00:23";
         String end = "2035-09-06 11:00:23";
 
@@ -86,7 +87,7 @@ public class StatsIntegrationTest {
     }
 
     @Test
-    void getStatsWithUrisUniqueTest() {
+    void getStatsWithUrisUniqueTest() throws DateException {
         String start = "2021-09-06 11:00:23";
         String end = "2035-09-06 11:00:23";
         String[] uris = new String[]{"/events/1"};
@@ -103,7 +104,7 @@ public class StatsIntegrationTest {
     }
 
     @Test
-    void getStatsWithNoUrisUniqueTest() {
+    void getStatsWithNoUrisUniqueTest() throws DateException {
         String start = "2021-09-06 11:00:23";
         String end = "2035-09-06 11:00:23";
 

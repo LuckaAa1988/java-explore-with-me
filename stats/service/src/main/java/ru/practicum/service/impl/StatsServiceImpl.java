@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.entity.Hit;
+import ru.practicum.exception.model.DateException;
 import ru.practicum.mapper.HitMapper;
 import ru.practicum.repository.StatsRepository;
 import ru.practicum.request.HitRequest;
@@ -30,11 +31,14 @@ public class StatsServiceImpl implements StatsService {
     }
 
     @Override
-    public List<HitResponse> getStats(String start, String end, String[] uris, Boolean unique) {
+    public List<HitResponse> getStats(String start, String end, String[] uris, Boolean unique) throws DateException {
         log.info("Отображение всей статистики с {} по {} для Uris: {}", start, end, uris);
         var inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         var startTime = LocalDateTime.parse(start, inputFormatter);
         var endTime = LocalDateTime.parse(end, inputFormatter);
+        if (startTime.isAfter(endTime)) {
+            throw new DateException("Start Time is After End Time");
+        }
         if (unique) {
             return uris == null ? statsRepository.findAllWithOutUrisUnique(startTime, endTime) :
                     statsRepository.findALlWithUrisUnique(startTime, endTime, uris);

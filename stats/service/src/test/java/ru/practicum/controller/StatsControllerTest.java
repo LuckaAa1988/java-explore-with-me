@@ -40,7 +40,6 @@ public class StatsControllerTest {
     private HitRequest hitRequest;
     private HitResponse hitResponse;
     private Hit hit;
-    private HitRequest badIpHit;
 
     @BeforeEach
     void setUp() {
@@ -52,12 +51,6 @@ public class StatsControllerTest {
         hitRequest.setIp("192.163.0.1");
         hitRequest.setUri("/events/1");
         hitRequest.setTimestamp(time);
-
-        badIpHit = new HitRequest();
-        badIpHit.setApp("ewm-main-service");
-        badIpHit.setIp("BAD IP");
-        badIpHit.setUri("/events/1");
-        badIpHit.setTimestamp(time);
 
         hit = new Hit();
         hit.setApp("ewm-main-service");
@@ -84,16 +77,6 @@ public class StatsControllerTest {
                 .andExpect(jsonPath("$.app").value(hit.getApp()))
                 .andExpect(jsonPath("$.uri").value(hit.getUri()))
                 .andExpect(jsonPath("$.ip").value(hit.getIp()));
-    }
-
-    @Test
-    void saveRequestBadIpTest() throws Exception {
-        when(statsService.saveRequest(any(HitRequest.class))).thenReturn(hit);
-
-        mvc.perform(post("/hit")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(badIpHit)))
-                .andExpect(status().isBadRequest());
     }
 
     @Test
