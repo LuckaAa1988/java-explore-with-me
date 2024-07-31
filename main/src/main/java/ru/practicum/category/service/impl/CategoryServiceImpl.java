@@ -2,7 +2,6 @@ package ru.practicum.category.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.category.CategoryRequest;
 import ru.practicum.dto.category.CategoryResponse;
