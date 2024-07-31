@@ -9,13 +9,13 @@ import ru.practicum.exception.model.NotFoundException;
 import java.util.List;
 
 public interface CategoryService {
-    List<CategoryResponse> getAllCategories(Integer from, Integer size) throws InvalidParametersException;
+    List<CategoryResponse> findAll(Integer from, Integer size) throws InvalidParametersException;
 
-    CategoryResponse getCategoryById(Long categoryId) throws NotFoundException;
+    CategoryResponse findById(Long categoryId) throws NotFoundException;
 
-    CategoryResponse addCategory(CategoryRequest categoryRequest) throws ConflictException;
+    CategoryResponse save(CategoryRequest categoryRequest) throws ConflictException;
 
-    void removeCategory(Long categoryId) throws NotFoundException, ConflictException;
+    void deleteById(Long categoryId) throws NotFoundException, ConflictException;
 
-    CategoryResponse updateCategory(CategoryRequest categoryRequest, Long categoryId) throws NotFoundException, ConflictException;
+    CategoryResponse update(CategoryRequest categoryRequest, Long categoryId) throws NotFoundException, ConflictException;
 }

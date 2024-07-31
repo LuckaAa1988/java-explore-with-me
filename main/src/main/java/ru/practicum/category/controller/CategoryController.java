@@ -19,14 +19,14 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<List<CategoryResponse>> getAllCategories(@RequestParam(defaultValue = "0") Integer from,
+    public ResponseEntity<List<CategoryResponse>> findAll(@RequestParam(defaultValue = "0") Integer from,
                                                                    @RequestParam(defaultValue = "10") Integer size) throws InvalidParametersException {
-        return ResponseEntity.ok().body(categoryService.getAllCategories(from, size));
+        return ResponseEntity.ok().body(categoryService.findAll(from, size));
     }
 
     @GetMapping("/{categoryId}")
-    public ResponseEntity<CategoryResponse> getCategoryById(@PathVariable Long categoryId) throws NotFoundException {
-        return ResponseEntity.ok(categoryService.getCategoryById(categoryId));
+    public ResponseEntity<CategoryResponse> findById(@PathVariable Long categoryId) throws NotFoundException {
+        return ResponseEntity.ok(categoryService.findById(categoryId));
     }
 
 }

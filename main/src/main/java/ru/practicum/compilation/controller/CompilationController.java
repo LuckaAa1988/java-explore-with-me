@@ -19,14 +19,14 @@ public class CompilationController {
     private final CompilationService compilationService;
 
     @GetMapping
-    public ResponseEntity<List<CompilationResponse>> getAllCompilation(@RequestParam(required = false) Boolean pinned,
+    public ResponseEntity<List<CompilationResponse>> findAll(@RequestParam(required = false) Boolean pinned,
                                                                        @RequestParam(defaultValue = "0") Integer from,
                                                                        @RequestParam(defaultValue = "10") Integer size) throws InvalidParametersException {
-        return ResponseEntity.ok(compilationService.getAllCompilation(pinned, from, size));
+        return ResponseEntity.ok(compilationService.findAll(pinned, from, size));
     }
 
     @GetMapping("/{compId}")
-    public ResponseEntity<CompilationResponse> getCompilation(@PathVariable Long compId) throws NotFoundException {
-        return ResponseEntity.ok(compilationService.getCompilation(compId));
+    public ResponseEntity<CompilationResponse> findById(@PathVariable Long compId) throws NotFoundException {
+        return ResponseEntity.ok(compilationService.findById(compId));
     }
 }

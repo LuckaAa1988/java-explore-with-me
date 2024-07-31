@@ -35,71 +35,71 @@ public class AdminController {
     private final EventService eventService;
 
     @PostMapping("/categories")
-    public ResponseEntity<CategoryResponse> addCategory(@RequestBody @Valid CategoryRequest categoryRequest) throws ConflictException {
-        return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.addCategory(categoryRequest));
+    public ResponseEntity<CategoryResponse> saveCategory(@RequestBody @Valid CategoryRequest categoryRequest) throws ConflictException {
+        return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.save(categoryRequest));
     }
 
     @DeleteMapping("/categories/{categoryId}")
-    public ResponseEntity<Object> removeCategory(@PathVariable Long categoryId) throws ConflictException, NotFoundException {
-        categoryService.removeCategory(categoryId);
+    public ResponseEntity<Object> deleteCategory(@PathVariable Long categoryId) throws ConflictException, NotFoundException {
+        categoryService.deleteById(categoryId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PatchMapping("/categories/{categoryId}")
     public ResponseEntity<CategoryResponse> updateCategory(@RequestBody @Valid CategoryRequest categoryRequest,
                                                            @PathVariable Long categoryId) throws NotFoundException, ConflictException {
-        return ResponseEntity.ok(categoryService.updateCategory(categoryRequest, categoryId));
+        return ResponseEntity.ok(categoryService.update(categoryRequest, categoryId));
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<UserResponse>> getAllUsers(@RequestParam(defaultValue = "0") Integer from,
+    public ResponseEntity<List<UserResponse>> findAllUsers(@RequestParam(defaultValue = "0") Integer from,
                                                           @RequestParam(defaultValue = "10") Integer size,
                                                           @RequestParam(required = false) Long[] ids) throws InvalidParametersException {
-        return ResponseEntity.ok(userService.getAllUsers(from, size, ids));
+        return ResponseEntity.ok(userService.findAll(from, size, ids));
     }
 
     @PostMapping("/users")
-    public ResponseEntity<UserResponse> addUser(@RequestBody @Valid UserRequest userRequest) throws ConflictException {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.addUser(userRequest));
+    public ResponseEntity<UserResponse> saveUser(@RequestBody @Valid UserRequest userRequest) throws ConflictException {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.save(userRequest));
     }
 
     @DeleteMapping("/users/{userId}")
-    public ResponseEntity<Object> removeUser(@PathVariable Long userId) throws NotFoundException {
-        userService.removeUser(userId);
+    public ResponseEntity<Object> deleteUser(@PathVariable Long userId) throws NotFoundException {
+        userService.deleteById(userId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PostMapping("/compilations")
-    public ResponseEntity<CompilationResponse> addCompilation(@RequestBody @Valid CompilationRequest compilationRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(compilationService.addCompilation(compilationRequest));
+    public ResponseEntity<CompilationResponse> saveCompilation(@RequestBody @Valid CompilationRequest compilationRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(compilationService.save(compilationRequest));
     }
 
     @DeleteMapping("/compilations/{compId}")
-    public ResponseEntity<Object> removeCompilation(@PathVariable Long compId) throws NotFoundException {
-        compilationService.removeCompilation(compId);
+    public ResponseEntity<Object> deleteCompilation(@PathVariable Long compId) throws NotFoundException {
+        compilationService.deleteById(compId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PatchMapping("/compilations/{compId}")
     public ResponseEntity<CompilationResponse> updateCompilation(@PathVariable Long compId,
                                                                  @RequestBody @Valid CompilationUpdateRequest compilationRequest) throws NotFoundException {
-        return ResponseEntity.ok(compilationService.updateCompilation(compId, compilationRequest));
+        return ResponseEntity.ok(compilationService.update(compId, compilationRequest));
     }
 
     @GetMapping("/events")
-    public ResponseEntity<List<EventResponse>> getAllEvents(@RequestParam(required = false) Integer[] users,
+    public ResponseEntity<List<EventResponse>> findAllEvents(@RequestParam(required = false) Integer[] users,
                                                             @RequestParam(required = false) String[] states,
                                                             @RequestParam(required = false) Integer[] categories,
                                                             @RequestParam(required = false) String rangeStart,
                                                             @RequestParam(required = false) String rangeEnd,
                                                             @RequestParam(defaultValue = "0") Integer from,
                                                             @RequestParam(defaultValue = "10") Integer size) throws InvalidParametersException {
-        return ResponseEntity.ok(eventService.getAllEvents(users, states, categories, rangeStart, rangeEnd, from, size));
+        return ResponseEntity.ok(eventService.findAll(users, states, categories, rangeStart, rangeEnd, from, size));
     }
 
     @PatchMapping("/events/{eventId}")
     public ResponseEntity<EventResponse> updateAdminEvent(@PathVariable Long eventId,
                                                           @RequestBody @Valid EventUpdateRequest eventUpdateRequest) throws NotFoundException, ConflictException {
-        return ResponseEntity.ok(eventService.updateAdminEvent(eventId, eventUpdateRequest));
+        return ResponseEntity.ok(eventService.update(eventId, eventUpdateRequest));
     }
 }

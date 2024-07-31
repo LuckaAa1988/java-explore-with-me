@@ -55,9 +55,10 @@ public class EventServiceImpl implements EventService {
     private final LocationMapper locationMapper;
     private final RequestMapper requestMapper;
     private final StatsClient statsClient;
+    private final DateTimeFormatter dateTimeFormatter;
 
     @Override
-    public List<EventResponse> getAllUserEvents(Long userId, Integer from, Integer size) throws InvalidParametersException {
+    public List<EventResponse> findAllPrivate(Long userId, Integer from, Integer size) throws InvalidParametersException {
         log.info("Get all events by user id: {}", userId);
         if (from < 0) throw new InvalidParametersException("Invalid parameters");
         var pageable = PageRequest.of(from / size, size);
@@ -67,7 +68,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventResponse addEvent(Long userId, EventRequest eventRequest) throws NotFoundException {
+    public EventResponse save(Long userId, EventRequest eventRequest) throws NotFoundException {
         log.info("Add event by user id: {}, request: {}", userId, eventRequest);
         var initiator = userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException(String.format(Constants.USER_NOT_FOUND, userId))
@@ -93,7 +94,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventResponse getUserEvent(Long userId, Long eventId) throws NotFoundException {
+    public EventResponse findByUserId(Long userId, Long eventId) throws NotFoundException {
         log.info("Get event by user id: {}, event id: {}", userId, eventId);
         return eventMapper.toDto(eventRepository.findEventByInitiatorIdAndId(userId, eventId).orElseThrow(
                 () -> new NotFoundException(String.format(Constants.EVENT_NOT_FOUND, eventId))
@@ -101,7 +102,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventResponse updateUserEvent(Long userId, Long eventId, EventUpdateRequest eventUpdateRequest)
+    public EventResponse updateByUserId(Long userId, Long eventId, EventUpdateRequest eventUpdateRequest)
             throws NotFoundException, ConflictException {
         log.info("Update event by user id: {}, event id: {}", userId, eventId);
         var event = eventRepository.findEventByInitiatorIdAndId(userId, eventId).orElseThrow(
@@ -122,21 +123,20 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventShortResponse> getAllEventsWithFilters(String text,
-                                                            Integer[] categories,
-                                                            Boolean paid,
-                                                            String rangeStart,
-                                                            String rangeEnd,
-                                                            Boolean onlyAvailable,
-                                                            String sortString,
-                                                            Integer from,
-                                                            Integer size,
-                                                            HttpServletRequest request) throws InvalidParametersException {
-        log.info("Get all events");
+    public List<EventShortResponse> findAllPublic(String text,
+                                                  Integer[] categories,
+                                                  Boolean paid,
+                                                  String rangeStart,
+                                                  String rangeEnd,
+                                                  Boolean onlyAvailable,
+                                                  String sortString,
+                                                  Integer from,
+                                                  Integer size,
+                                                  HttpServletRequest request) throws InvalidParametersException {
         saveHitRequest(request);
         if (from < 0) throw new InvalidParametersException("Invalid parameters");
         var pageable = PageRequest.of(from / size, size);
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        log.info("Get all events with pageable: {}", pageable);
         LocalDateTime start = null;
         LocalDateTime end = null;
         if (rangeStart != null) {
@@ -161,7 +161,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventResponse getEventById(Long eventId, HttpServletRequest request) throws NotFoundException {
+    public EventResponse findById(Long eventId, HttpServletRequest request) throws NotFoundException {
         log.info("Get event by id: {}", eventId);
         saveHitRequest(request);
         var event = eventRepository.findById(eventId).orElseThrow(
@@ -174,17 +174,16 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventResponse> getAllEvents(Integer[] users,
-                                            String[] states,
-                                            Integer[] categories,
-                                            String rangeStart,
-                                            String rangeEnd,
-                                            Integer from,
-                                            Integer size) throws InvalidParametersException {
-        log.info("Get all events by admin");
+    public List<EventResponse> findAll(Integer[] users,
+                                       String[] states,
+                                       Integer[] categories,
+                                       String rangeStart,
+                                       String rangeEnd,
+                                       Integer from,
+                                       Integer size) throws InvalidParametersException {
         if (from < 0) throw new InvalidParametersException("Invalid parameters");
         var pageable = PageRequest.of(from / size, size);
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        log.info("Get all admin events with pageable: {}", pageable);
         LocalDateTime start = null;
         LocalDateTime end = null;
         if (rangeStart != null) {
@@ -206,7 +205,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventResponse updateAdminEvent(Long eventId, EventUpdateRequest eventUpdateRequest) throws NotFoundException, ConflictException {
+    public EventResponse update(Long eventId, EventUpdateRequest eventUpdateRequest) throws NotFoundException, ConflictException {
         log.info("Update event by admin with id: {}", eventId);
         var event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException(String.format(Constants.EVENT_NOT_FOUND, eventId))
@@ -227,7 +226,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<RequestResponse> getUserEventRequests(Long userId, Long eventId) throws NotFoundException {
+    public List<RequestResponse> findRequest(Long userId, Long eventId) throws NotFoundException {
         log.info("Get event requests by user id: {}, event id: {}", userId, eventId);
         var user = userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException(String.format(Constants.USER_NOT_FOUND, userId))
@@ -241,7 +240,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventRequestStatusUpdateResponse updateUserEventRequests(Long userId, Long eventId, EventRequestStatusUpdateRequest eventRequest) throws ConflictException, NotFoundException {
+    public EventRequestStatusUpdateResponse updateRequest(Long userId, Long eventId, EventRequestStatusUpdateRequest eventRequest) throws ConflictException, NotFoundException {
         log.info("Update event request by user id: {}, event id: {}", userId, eventId);
         var requests = requestRepository.findAllById(eventRequest.getRequestIds());
         if (!requests.stream().allMatch(r -> r.getStatus().equals(Status.PENDING))) {

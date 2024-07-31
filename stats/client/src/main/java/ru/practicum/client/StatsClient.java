@@ -21,8 +21,10 @@ import java.util.Map;
 @Component
 public class StatsClient extends BaseClient {
 
+    private final ObjectMapper objectMapper;
+
     @Autowired
-    public StatsClient(@Value("${stats-server.url}") String serverUrl) {
+    public StatsClient(@Value("${stats-server.url}") String serverUrl, ObjectMapper objectMapper) {
         super(
                 new RestTemplateBuilder()
                         .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
@@ -30,6 +32,7 @@ public class StatsClient extends BaseClient {
                         .build(),
                 serverUrl
         );
+        this.objectMapper = objectMapper;
     }
 
     public void save(HitRequest hitRequest) {
@@ -56,7 +59,6 @@ public class StatsClient extends BaseClient {
         String start = LocalDateTime.now().minusYears(1L).format(dateTimeFormatter);
         String end = LocalDateTime.now().format(dateTimeFormatter);
         String[] uris = new String[]{uri};
-        ObjectMapper objectMapper = new ObjectMapper();
         List<HitResponse> list = objectMapper.convertValue(getStats(start, end, uris, true).getBody(), new TypeReference<>() {
                 });
         return list.size();

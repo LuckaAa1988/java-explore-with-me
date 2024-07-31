@@ -9,9 +9,9 @@ import ru.practicum.exception.model.NotFoundException;
 import java.util.List;
 
 public interface UserService {
-    List<UserResponse> getAllUsers(Integer from, Integer size, Long[] ids) throws InvalidParametersException;
+    List<UserResponse> findAll(Integer from, Integer size, Long[] ids) throws InvalidParametersException;
 
-    UserResponse addUser(UserRequest userRequest) throws ConflictException;
+    UserResponse save(UserRequest userRequest) throws ConflictException;
 
-    void removeUser(Long userId) throws NotFoundException;
+    void deleteById(Long userId) throws NotFoundException;
 }

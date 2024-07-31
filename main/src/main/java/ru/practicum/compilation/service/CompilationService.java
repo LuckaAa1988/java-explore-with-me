@@ -9,13 +9,13 @@ import ru.practicum.exception.model.NotFoundException;
 import java.util.List;
 
 public interface CompilationService {
-    List<CompilationResponse> getAllCompilation(Boolean pinned, Integer from, Integer size) throws InvalidParametersException;
+    List<CompilationResponse> findAll(Boolean pinned, Integer from, Integer size) throws InvalidParametersException;
 
-    CompilationResponse getCompilation(Long compId) throws NotFoundException;
+    CompilationResponse findById(Long compId) throws NotFoundException;
 
-    CompilationResponse addCompilation(CompilationRequest compilationRequest);
+    CompilationResponse save(CompilationRequest compilationRequest);
 
-    void removeCompilation(Long compId) throws NotFoundException;
+    void deleteById(Long compId) throws NotFoundException;
 
-    CompilationResponse updateCompilation(Long compId, CompilationUpdateRequest compilationRequest) throws NotFoundException;
+    CompilationResponse update(Long compId, CompilationUpdateRequest compilationRequest) throws NotFoundException;
 }

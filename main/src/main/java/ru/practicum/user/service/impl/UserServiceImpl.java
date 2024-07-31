@@ -29,10 +29,10 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    public List<UserResponse> getAllUsers(Integer from, Integer size, Long[] ids) throws InvalidParametersException {
-        log.info("Get all users");
+    public List<UserResponse> findAll(Integer from, Integer size, Long[] ids) throws InvalidParametersException {
         if (from < 0) throw new InvalidParametersException("Invalid parameters");
         var pageable = PageRequest.of(from / size, size);
+        log.info("Get all users by ids: {} with pageable {}", ids, pageable);
         List<User> response = ids == null ? userRepository.findAll(pageable).getContent() :
                 userRepository.findAllByIdIn(Arrays.asList(ids), pageable).getContent();
         return response.stream()
@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse addUser(UserRequest userRequest) throws ConflictException {
+    public UserResponse save(UserRequest userRequest) throws ConflictException {
         log.info("Add user with request: {}", userRequest);
         if (userRepository.existsByEmail(userRequest.getEmail())) {
             throw new ConflictException("Duplicate user email.");
@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void removeUser(Long userId) throws NotFoundException {
+    public void deleteById(Long userId) throws NotFoundException {
         log.info("Remove user with id: {}", userId);
         if (userRepository.deleteUserById(userId) == 0) {
             throw new NotFoundException(String.format(Constants.USER_NOT_FOUND, userId));

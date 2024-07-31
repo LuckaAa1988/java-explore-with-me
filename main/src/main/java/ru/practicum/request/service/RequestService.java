@@ -7,9 +7,9 @@ import ru.practicum.exception.model.NotFoundException;
 import java.util.List;
 
 public interface RequestService {
-    List<RequestResponse> getAllRequests(Long userId);
+    List<RequestResponse> findAll(Long userId);
 
-    RequestResponse addRequest(Long userId, Long eventId) throws NotFoundException, ConflictException;
+    RequestResponse save(Long userId, Long eventId) throws NotFoundException, ConflictException;
 
-    RequestResponse cancelRequest(Long userId, Long requestId) throws NotFoundException;
+    RequestResponse cancel(Long userId, Long requestId) throws NotFoundException;
 }

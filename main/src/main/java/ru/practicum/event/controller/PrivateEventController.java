@@ -26,43 +26,43 @@ public class PrivateEventController {
     private final EventService eventService;
 
     @GetMapping
-    public ResponseEntity<List<EventResponse>> getAllUserEvents(@PathVariable Long userId,
+    public ResponseEntity<List<EventResponse>> findAllPrivate(@PathVariable Long userId,
                                                                 @RequestParam(defaultValue = "0") Integer from,
                                                                 @RequestParam(defaultValue = "10") Integer size) throws InvalidParametersException {
-        return ResponseEntity.ok(eventService.getAllUserEvents(userId, from, size));
+        return ResponseEntity.ok(eventService.findAllPrivate(userId, from, size));
     }
 
     @PostMapping
-    public ResponseEntity<EventResponse> addEvent(@PathVariable Long userId,
+    public ResponseEntity<EventResponse> save(@PathVariable Long userId,
                                                   @RequestBody @Valid EventRequest eventRequest) throws NotFoundException {
-        return ResponseEntity.status(HttpStatus.CREATED).body(eventService.addEvent(userId, eventRequest));
+        return ResponseEntity.status(HttpStatus.CREATED).body(eventService.save(userId, eventRequest));
     }
 
     @GetMapping("/{eventId}")
-    public ResponseEntity<EventResponse> getUserEvent(@PathVariable Long userId,
+    public ResponseEntity<EventResponse> findByUserId(@PathVariable Long userId,
                                                       @PathVariable Long eventId) throws NotFoundException {
-        return ResponseEntity.ok(eventService.getUserEvent(userId, eventId));
+        return ResponseEntity.ok(eventService.findByUserId(userId, eventId));
     }
 
     @PatchMapping("/{eventId}")
-    public ResponseEntity<EventResponse> updateUserEvent(@PathVariable Long userId,
+    public ResponseEntity<EventResponse> updateByUserId(@PathVariable Long userId,
                                                          @PathVariable Long eventId,
                                                          @RequestBody @Valid EventUpdateRequest eventUpdateRequest)
             throws NotFoundException, ConflictException {
-        return ResponseEntity.ok(eventService.updateUserEvent(userId, eventId, eventUpdateRequest));
+        return ResponseEntity.ok(eventService.updateByUserId(userId, eventId, eventUpdateRequest));
     }
 
     @GetMapping("/{eventId}/requests")
-    public ResponseEntity<List<RequestResponse>> getUserEventRequests(@PathVariable Long userId,
+    public ResponseEntity<List<RequestResponse>> findRequest(@PathVariable Long userId,
                                                                       @PathVariable Long eventId) throws NotFoundException {
-        return ResponseEntity.ok(eventService.getUserEventRequests(userId, eventId));
+        return ResponseEntity.ok(eventService.findRequest(userId, eventId));
     }
 
     @PatchMapping("/{eventId}/requests")
-    public ResponseEntity<EventRequestStatusUpdateResponse> updateUserEventRequests(@PathVariable Long userId,
+    public ResponseEntity<EventRequestStatusUpdateResponse> updateRequest(@PathVariable Long userId,
                                                                                     @PathVariable Long eventId,
                                                                                     @RequestBody EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest)
             throws NotFoundException, ConflictException {
-        return ResponseEntity.ok(eventService.updateUserEventRequests(userId, eventId, eventRequestStatusUpdateRequest));
+        return ResponseEntity.ok(eventService.updateRequest(userId, eventId, eventRequestStatusUpdateRequest));
     }
 }

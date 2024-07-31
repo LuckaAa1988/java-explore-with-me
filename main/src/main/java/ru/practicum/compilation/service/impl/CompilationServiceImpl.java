@@ -31,7 +31,7 @@ public class CompilationServiceImpl implements CompilationService {
     private final CompilationMapper compilationMapper;
 
     @Override
-    public List<CompilationResponse> getAllCompilation(Boolean pinned, Integer from, Integer size) throws InvalidParametersException {
+    public List<CompilationResponse> findAll(Boolean pinned, Integer from, Integer size) throws InvalidParametersException {
         log.info("Get all compilations with pinned: {}", pinned);
         if (from < 0) throw new InvalidParametersException("Invalid parameters");
         var pageable = PageRequest.of(from / size, size);
@@ -46,7 +46,7 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
-    public CompilationResponse getCompilation(Long compId) throws NotFoundException {
+    public CompilationResponse findById(Long compId) throws NotFoundException {
         log.info("Get compilation with id: {}", compId);
         return compilationMapper.toDto(compilationRepository.findById(compId).orElseThrow(
                 () -> new NotFoundException(String.format(Constants.COMPILATION_NOT_FOUND, compId))
@@ -54,7 +54,7 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
-    public CompilationResponse addCompilation(CompilationRequest compilationRequest) {
+    public CompilationResponse save(CompilationRequest compilationRequest) {
         log.info("Add compilation with request: {}", compilationRequest);
         List<Event> events = Collections.emptyList();
         if (compilationRequest.getEvents() != null) {
@@ -66,15 +66,16 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     @Transactional
-    public void removeCompilation(Long compId) throws NotFoundException {
+    public void deleteById(Long compId) throws NotFoundException {
         log.info("Delete compilation with id: {}", compId);
-        if (compilationRepository.deleteCompilationById(compId) == 0) {
+        if (!compilationRepository.existsById(compId)) {
             throw new NotFoundException(String.format(Constants.COMPILATION_NOT_FOUND, compId));
         }
+        compilationRepository.deleteById(compId);
     }
 
     @Override
-    public CompilationResponse updateCompilation(Long compId, CompilationUpdateRequest compilationRequest) throws NotFoundException {
+    public CompilationResponse update(Long compId, CompilationUpdateRequest compilationRequest) throws NotFoundException {
         log.info("Update compilation with id: {}, request: {}", compId, compilationRequest);
         var compilation = compilationRepository.findById(compId).orElseThrow(
                 () -> new NotFoundException(String.format(Constants.COMPILATION_NOT_FOUND, compId))

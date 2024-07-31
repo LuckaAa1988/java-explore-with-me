@@ -32,7 +32,7 @@ public class RequestServiceImpl implements RequestService {
     private final RequestMapper requestMapper;
 
     @Override
-    public List<RequestResponse> getAllRequests(Long userId) {
+    public List<RequestResponse> findAll(Long userId) {
         log.info("Get all requests by user id: {}", userId);
         return requestRepository.findByRequesterId(userId).stream()
                 .map(requestMapper::toDto)
@@ -40,7 +40,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public RequestResponse addRequest(Long userId, Long eventId) throws NotFoundException, ConflictException {
+    public RequestResponse save(Long userId, Long eventId) throws NotFoundException, ConflictException {
         log.info("Get request by user id: {}, with event: {}", userId, eventId);
         var event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException(String.format(Constants.EVENT_NOT_FOUND, eventId))
@@ -75,7 +75,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public RequestResponse cancelRequest(Long userId, Long requestId) throws NotFoundException {
+    public RequestResponse cancel(Long userId, Long requestId) throws NotFoundException {
         log.info("Cancel request by user id: {}, with request id {}", userId, requestId);
         var request = requestRepository.findById(requestId).orElseThrow(
                 () -> new NotFoundException(String.format(Constants.REQUEST_NOT_FOUND, requestId))

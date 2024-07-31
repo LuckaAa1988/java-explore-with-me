@@ -19,19 +19,19 @@ public class RequestController {
     private final RequestService requestService;
 
     @GetMapping
-    public ResponseEntity<List<RequestResponse>> getAllRequests(@PathVariable Long userId) {
-        return ResponseEntity.ok(requestService.getAllRequests(userId));
+    public ResponseEntity<List<RequestResponse>> findAll(@PathVariable Long userId) {
+        return ResponseEntity.ok(requestService.findAll(userId));
     }
 
     @PostMapping
-    public ResponseEntity<RequestResponse> addRequest(@PathVariable Long userId,
+    public ResponseEntity<RequestResponse> save(@PathVariable Long userId,
                                                       @RequestParam Long eventId) throws NotFoundException, ConflictException {
-        return ResponseEntity.status(HttpStatus.CREATED).body(requestService.addRequest(userId, eventId));
+        return ResponseEntity.status(HttpStatus.CREATED).body(requestService.save(userId, eventId));
     }
 
     @PatchMapping("/{requestId}/cancel")
-    public ResponseEntity<RequestResponse> cancelRequest(@PathVariable Long userId,
+    public ResponseEntity<RequestResponse> cancel(@PathVariable Long userId,
                                                          @PathVariable Long requestId) throws NotFoundException {
-        return ResponseEntity.ok(requestService.cancelRequest(userId, requestId));
+        return ResponseEntity.ok(requestService.cancel(userId, requestId));
     }
 }

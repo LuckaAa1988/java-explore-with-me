@@ -20,7 +20,7 @@ public class PublicEventController {
     private final EventService eventService;
 
     @GetMapping
-    public ResponseEntity<List<EventShortResponse>> getAllEventsWithFilters(@RequestParam(required = false) String text,
+    public ResponseEntity<List<EventShortResponse>> findAllPublic(@RequestParam(required = false) String text,
                                                                             @RequestParam(required = false) Integer[] categories,
                                                                             @RequestParam(required = false) Boolean paid,
                                                                             @RequestParam(required = false) String rangeStart,
@@ -30,13 +30,13 @@ public class PublicEventController {
                                                                             @RequestParam(defaultValue = "0") Integer from,
                                                                             @RequestParam(defaultValue = "10") Integer size,
                                                                             HttpServletRequest request) throws InvalidParametersException {
-        return ResponseEntity.ok(eventService.getAllEventsWithFilters(
+        return ResponseEntity.ok(eventService.findAllPublic(
                 text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, request));
     }
 
     @GetMapping("/{eventId}")
-    public ResponseEntity<EventResponse> getEventById(@PathVariable Long eventId,
+    public ResponseEntity<EventResponse> findById(@PathVariable Long eventId,
                                                       HttpServletRequest request) throws NotFoundException {
-        return ResponseEntity.ok(eventService.getEventById(eventId, request));
+        return ResponseEntity.ok(eventService.findById(eventId, request));
     }
 }

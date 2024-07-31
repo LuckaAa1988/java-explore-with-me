@@ -2,11 +2,13 @@ package ru.practicum.category.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.category.CategoryRequest;
 import ru.practicum.dto.category.CategoryResponse;
 import lombok.RequiredArgsConstructor;
 import ru.practicum.event.repository.EventRepository;
+import ru.practicum.event.repository.EventSpecification;
 import ru.practicum.exception.model.ConflictException;
 import ru.practicum.exception.model.InvalidParametersException;
 import ru.practicum.exception.model.NotFoundException;
@@ -29,24 +31,24 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryMapper categoryMapper;
 
     @Override
-    public List<CategoryResponse> getAllCategories(Integer from, Integer size) throws InvalidParametersException {
-        log.info("Get all categories");
+    public List<CategoryResponse> findAll(Integer from, Integer size) throws InvalidParametersException {
         if (from < 0) throw new InvalidParametersException("Invalid parameters");
         var pageable = PageRequest.of(from / size, size);
+        log.info("Get all categories with pageable: {}", pageable);
         return categoryRepository.findAll(pageable).stream()
                 .map(categoryMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public CategoryResponse getCategoryById(Long categoryId) throws NotFoundException {
+    public CategoryResponse findById(Long categoryId) throws NotFoundException {
         log.info("Get category by id {}", categoryId);
         return categoryMapper.toDto(categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new NotFoundException(String.format(Constants.CATEGORY_NOT_FOUND, categoryId))));
     }
 
     @Override
-    public CategoryResponse addCategory(CategoryRequest categoryRequest) throws ConflictException {
+    public CategoryResponse save(CategoryRequest categoryRequest) throws ConflictException {
         log.info("Add category with request {}", categoryRequest);
         if (categoryRepository.existsByName(categoryRequest.getName())) {
             throw new ConflictException("Duplicate category name.");
@@ -56,19 +58,19 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public void removeCategory(Long categoryId) throws NotFoundException, ConflictException {
+    public void deleteById(Long categoryId) throws NotFoundException, ConflictException {
         log.info("Remove category with id {}", categoryId);
-        var category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new NotFoundException(String.format(Constants.CATEGORY_NOT_FOUND, categoryId)));
-        var events = eventRepository.findAllByCategory(category);
-        if (!events.isEmpty()) {
+        if (!categoryRepository.existsById(categoryId)) {
+            throw new NotFoundException(String.format(Constants.CATEGORY_NOT_FOUND, categoryId));
+        }
+        if (eventRepository.exists(EventSpecification.byCategories(new Integer[]{categoryId.intValue()}))) {
             throw new ConflictException("This category have events.");
         }
-        categoryRepository.deleteCategoryById(categoryId);
+        categoryRepository.deleteById(categoryId);
     }
 
     @Override
-    public CategoryResponse updateCategory(CategoryRequest categoryRequest, Long categoryId) throws NotFoundException, ConflictException {
+    public CategoryResponse update(CategoryRequest categoryRequest, Long categoryId) throws NotFoundException, ConflictException {
         log.info("Update category with id {}", categoryId);
         var category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new NotFoundException(String.format(Constants.CATEGORY_NOT_FOUND, categoryId)));
