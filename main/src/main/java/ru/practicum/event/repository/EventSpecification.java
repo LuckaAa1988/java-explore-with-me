@@ -3,8 +3,11 @@ package ru.practicum.event.repository;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import ru.practicum.event.entity.Event;
+import ru.practicum.event.entity.UserEventReaction;
 import ru.practicum.event.util.State;
 
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -90,8 +93,10 @@ public class EventSpecification {
         return (root, query, cb) -> {
             if (order.equals("EVENT_DATE")) {
                 query.orderBy(cb.desc(root.get("eventDate")));
-            } else if (order.equals("VIEWS")) {
-                query.orderBy();
+            } else if (order.equals("LIKES")) {
+                Join<Event, UserEventReaction> reactionsJoin = root.join("reactions", JoinType.LEFT);
+                query.groupBy(root.get("id"));
+                query.orderBy(cb.desc(cb.sum(reactionsJoin.get("reaction"))));
             }
             return cb.conjunction();
         };

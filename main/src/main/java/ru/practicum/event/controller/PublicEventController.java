@@ -39,4 +39,10 @@ public class PublicEventController {
                                                       HttpServletRequest request) throws NotFoundException {
         return ResponseEntity.ok(eventService.findById(eventId, request));
     }
+
+    @GetMapping("/rating")
+    public ResponseEntity<List<EventShortResponse>> findAllTop(@RequestParam(defaultValue = "0") Integer from,
+                                                      @RequestParam(defaultValue = "10") Integer size) throws InvalidParametersException {
+        return ResponseEntity.ok(eventService.findAllTop(from, size));
+    }
 }

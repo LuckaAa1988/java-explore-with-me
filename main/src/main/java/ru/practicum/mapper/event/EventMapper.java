@@ -8,6 +8,7 @@ import ru.practicum.dto.event.EventResponse;
 import ru.practicum.dto.event.EventShortResponse;
 import ru.practicum.event.entity.Event;
 import ru.practicum.event.entity.Location;
+import ru.practicum.event.entity.UserEventReaction;
 import ru.practicum.mapper.category.CategoryMapper;
 import ru.practicum.mapper.user.UserMapper;
 import ru.practicum.user.entity.User;
@@ -68,6 +69,7 @@ public class EventMapper {
                 .paid(event.getPaid())
                 .title(event.getTitle())
                 .views(views)
+                .reactions(event.getReactions().stream().mapToInt(UserEventReaction::getReaction).sum())
                 .build();
     }
 }

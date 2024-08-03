@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.event.EventRequest;
 import ru.practicum.dto.event.EventResponse;
+import ru.practicum.dto.event.EventShortResponse;
 import ru.practicum.dto.event.EventUpdateRequest;
 import ru.practicum.dto.request.EventRequestStatusUpdateRequest;
 import ru.practicum.dto.request.EventRequestStatusUpdateResponse;
@@ -27,14 +28,14 @@ public class PrivateEventController {
 
     @GetMapping
     public ResponseEntity<List<EventResponse>> findAllPrivate(@PathVariable Long userId,
-                                                                @RequestParam(defaultValue = "0") Integer from,
-                                                                @RequestParam(defaultValue = "10") Integer size) throws InvalidParametersException {
+                                                              @RequestParam(defaultValue = "0") Integer from,
+                                                              @RequestParam(defaultValue = "10") Integer size) throws InvalidParametersException {
         return ResponseEntity.ok(eventService.findAllPrivate(userId, from, size));
     }
 
     @PostMapping
     public ResponseEntity<EventResponse> save(@PathVariable Long userId,
-                                                  @RequestBody @Valid EventRequest eventRequest) throws NotFoundException {
+                                              @RequestBody @Valid EventRequest eventRequest) throws NotFoundException {
         return ResponseEntity.status(HttpStatus.CREATED).body(eventService.save(userId, eventRequest));
     }
 
@@ -46,23 +47,31 @@ public class PrivateEventController {
 
     @PatchMapping("/{eventId}")
     public ResponseEntity<EventResponse> updateByUserId(@PathVariable Long userId,
-                                                         @PathVariable Long eventId,
-                                                         @RequestBody @Valid EventUpdateRequest eventUpdateRequest)
+                                                        @PathVariable Long eventId,
+                                                        @RequestBody @Valid EventUpdateRequest eventUpdateRequest)
             throws NotFoundException, ConflictException {
         return ResponseEntity.ok(eventService.updateByUserId(userId, eventId, eventUpdateRequest));
     }
 
     @GetMapping("/{eventId}/requests")
     public ResponseEntity<List<RequestResponse>> findRequest(@PathVariable Long userId,
-                                                                      @PathVariable Long eventId) throws NotFoundException {
+                                                             @PathVariable Long eventId) throws NotFoundException {
         return ResponseEntity.ok(eventService.findRequest(userId, eventId));
     }
 
     @PatchMapping("/{eventId}/requests")
     public ResponseEntity<EventRequestStatusUpdateResponse> updateRequest(@PathVariable Long userId,
-                                                                                    @PathVariable Long eventId,
-                                                                                    @RequestBody EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest)
+                                                                          @PathVariable Long eventId,
+                                                                          @RequestBody EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest)
             throws NotFoundException, ConflictException {
         return ResponseEntity.ok(eventService.updateRequest(userId, eventId, eventRequestStatusUpdateRequest));
+    }
+
+    @PatchMapping("/{eventId}/reactions")
+    public ResponseEntity<EventShortResponse> saveReaction(@PathVariable Long userId,
+                                                       @PathVariable Long eventId,
+                                                       @RequestParam(required = false) String reaction)
+            throws NotFoundException, ConflictException {
+        return ResponseEntity.ok(eventService.saveReaction(userId, eventId, reaction));
     }
 }

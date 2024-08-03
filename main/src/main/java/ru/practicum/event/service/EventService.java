@@ -34,4 +34,8 @@ public interface EventService {
     List<RequestResponse> findRequest(Long userId, Long eventId) throws NotFoundException;
 
     EventRequestStatusUpdateResponse updateRequest(Long userId, Long eventId, EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest) throws ConflictException, NotFoundException;
+
+    EventShortResponse saveReaction(Long userId, Long eventId, String reaction) throws NotFoundException, ConflictException;
+
+    List<EventShortResponse> findAllTop(Integer from, Integer size) throws InvalidParametersException;
 }

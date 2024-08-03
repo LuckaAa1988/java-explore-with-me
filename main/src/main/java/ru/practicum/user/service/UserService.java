@@ -1,5 +1,7 @@
 package ru.practicum.user.service;
 
+import ru.practicum.dto.event.EventShortResponse;
+import ru.practicum.dto.user.UserReactionResponse;
 import ru.practicum.dto.user.UserRequest;
 import ru.practicum.dto.user.UserResponse;
 import ru.practicum.exception.model.ConflictException;
@@ -14,4 +16,6 @@ public interface UserService {
     UserResponse save(UserRequest userRequest) throws ConflictException;
 
     void deleteById(Long userId) throws NotFoundException;
+
+    List<UserReactionResponse> findAllTopUsers(Integer from, Integer size) throws InvalidParametersException;
 }
