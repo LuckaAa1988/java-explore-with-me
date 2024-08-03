@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.dto.event.EventShortResponse;
 import ru.practicum.dto.user.UserReactionResponse;
 import ru.practicum.dto.user.UserRequest;
 import ru.practicum.dto.user.UserResponse;
@@ -21,8 +20,6 @@ import ru.practicum.user.service.UserService;
 
 import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 

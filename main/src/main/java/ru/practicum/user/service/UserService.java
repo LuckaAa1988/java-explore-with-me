@@ -1,6 +1,5 @@
 package ru.practicum.user.service;
 
-import ru.practicum.dto.event.EventShortResponse;
 import ru.practicum.dto.user.UserReactionResponse;
 import ru.practicum.dto.user.UserRequest;
 import ru.practicum.dto.user.UserResponse;

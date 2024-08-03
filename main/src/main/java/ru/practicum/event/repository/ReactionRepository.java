@@ -7,7 +7,6 @@ import ru.practicum.event.entity.UserEventReaction;
 import ru.practicum.event.entity.UserEventReactionId;
 
 import javax.persistence.Tuple;
-import java.util.Collection;
 import java.util.List;
 
 @Repository
