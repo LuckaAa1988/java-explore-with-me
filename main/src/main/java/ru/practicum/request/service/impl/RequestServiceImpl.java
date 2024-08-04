@@ -3,6 +3,7 @@ package ru.practicum.request.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.request.RequestResponse;
 import ru.practicum.event.repository.EventRepository;
 import ru.practicum.event.util.State;
@@ -40,6 +41,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    @Transactional
     public RequestResponse save(Long userId, Long eventId) throws NotFoundException, ConflictException {
         log.info("Get request by user id: {}, with event: {}", userId, eventId);
         var event = eventRepository.findById(eventId).orElseThrow(
@@ -75,6 +77,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    @Transactional
     public RequestResponse cancel(Long userId, Long requestId) throws NotFoundException {
         log.info("Cancel request by user id: {}, with request id {}", userId, requestId);
         var request = requestRepository.findById(requestId).orElseThrow(

@@ -11,12 +11,12 @@ import java.util.List;
 
 @Repository
 public interface ReactionRepository extends JpaRepository<UserEventReaction, UserEventReactionId> {
-    @Query(value = "SELECT r.event_id, SUM(r.reaction) FROM user_event_reactions AS r " +
-            "GROUP BY r.event_id ORDER BY SUM(r.reaction) DESC LIMIT :size OFFSET :from", nativeQuery = true)
+    @Query(value = "SELECT r.event_id, SUM(r.reaction) AS reaction_total FROM user_event_reactions AS r " +
+            "GROUP BY r.event_id ORDER BY reaction_total DESC LIMIT :size OFFSET :from", nativeQuery = true)
     List<Tuple> findAllTop(Integer from, Integer size);
 
-    @Query(value = "SELECT u.id, u.name, SUM(r.reaction) FROM user_event_reactions AS r " +
+    @Query(value = "SELECT u.id, u.name, SUM(r.reaction) AS reaction_total FROM user_event_reactions AS r " +
             "LEFT JOIN public.events AS e on r.event_id = e.id RIGHT JOIN users AS u on e.initiator_id = u.id GROUP BY u.id, u.name " +
-            "ORDER BY SUM(r.reaction) LIMIT :size OFFSET :from", nativeQuery = true)
+            "ORDER BY reaction_total LIMIT :size OFFSET :from", nativeQuery = true)
     List<Tuple> findAllTopUsers(Integer from, Integer size);
 }

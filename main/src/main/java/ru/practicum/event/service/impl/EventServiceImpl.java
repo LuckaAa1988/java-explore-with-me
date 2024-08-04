@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.category.repository.CategoryRepository;
 import ru.practicum.client.StatsClient;
 import ru.practicum.dto.event.EventShortResponse;
@@ -20,6 +21,7 @@ import ru.practicum.event.repository.EventRepository;
 import ru.practicum.event.repository.LocationRepository;
 import ru.practicum.event.repository.ReactionRepository;
 import ru.practicum.event.service.EventService;
+import ru.practicum.event.util.SortAction;
 import ru.practicum.event.util.State;
 import ru.practicum.event.util.StateAction;
 import ru.practicum.exception.model.ConflictException;
@@ -74,6 +76,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventResponse save(Long userId, EventRequest eventRequest) throws NotFoundException {
         log.info("Add event by user id: {}, request: {}", userId, eventRequest);
         var initiator = userRepository.findById(userId).orElseThrow(
@@ -108,6 +111,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventResponse updateByUserId(Long userId, Long eventId, EventUpdateRequest eventUpdateRequest)
             throws NotFoundException, ConflictException {
         log.info("Update event by user id: {}, event id: {}", userId, eventId);
@@ -154,6 +158,10 @@ public class EventServiceImpl implements EventService {
                 throw new InvalidParametersException("Invalid parameters");
             }
         }
+        SortAction sortAction = null;
+        if (sortString != null) {
+            sortAction = SortAction.valueOf(sortString);
+        }
         var events = eventRepository.findAll(byText(text)
                         .and(byState(State.PUBLISHED))
                         .and(byCategories(categories))
@@ -161,10 +169,10 @@ public class EventServiceImpl implements EventService {
                         .and(startDate(start))
                         .and(endDate(end))
                         .and(byAvailable(onlyAvailable))
-                        .and(orderBy(sortString)), pageable).getContent().stream()
+                        .and(orderBy(sortAction)), pageable).getContent().stream()
                 .map(e -> eventMapper.toShortDto(e, getViews("/events/" + e.getId())))
                 .collect(Collectors.toList());
-        return (sortString != null && sortString.equals("VIEWS")) ?
+        return (sortAction == SortAction.VIEWS) ?
                 events.stream()
                         .sorted(Comparator.comparing(EventShortResponse::getViews))
                         .collect(Collectors.toList()) : events;
@@ -215,6 +223,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventResponse update(Long eventId, EventUpdateRequest eventUpdateRequest) throws NotFoundException, ConflictException {
         log.info("Update event by admin with id: {}", eventId);
         var event = eventRepository.findById(eventId).orElseThrow(
@@ -250,6 +259,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventRequestStatusUpdateResponse updateRequest(Long userId, Long eventId, EventRequestStatusUpdateRequest eventRequest) throws ConflictException, NotFoundException {
         log.info("Update event request by user id: {}, event id: {}", userId, eventId);
         var requests = requestRepository.findAllById(eventRequest.getRequestIds());
@@ -280,6 +290,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventShortResponse saveReaction(Long userId, Long eventId, String reactionString) throws NotFoundException, ConflictException {
         log.info("Reaction {} from user id {} to event id {}", reactionString, userId, eventId);
         var event = eventRepository.findById(eventId).orElseThrow(

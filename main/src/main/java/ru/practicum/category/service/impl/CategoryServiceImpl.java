@@ -47,6 +47,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
     public CategoryResponse save(CategoryRequest categoryRequest) throws ConflictException {
         log.info("Add category with request {}", categoryRequest);
         if (categoryRepository.existsByName(categoryRequest.getName())) {
@@ -69,6 +70,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
     public CategoryResponse update(CategoryRequest categoryRequest, Long categoryId) throws NotFoundException, ConflictException {
         log.info("Update category with id {}", categoryId);
         var category = categoryRepository.findById(categoryId)

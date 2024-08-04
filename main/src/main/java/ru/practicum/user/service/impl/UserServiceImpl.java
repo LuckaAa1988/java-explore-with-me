@@ -46,6 +46,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserResponse save(UserRequest userRequest) throws ConflictException {
         log.info("Add user with request: {}", userRequest);
         if (userRepository.existsByEmail(userRequest.getEmail())) {
