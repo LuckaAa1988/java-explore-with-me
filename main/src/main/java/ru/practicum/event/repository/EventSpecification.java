@@ -94,7 +94,7 @@ public class EventSpecification {
         return (root, query, cb) -> {
             if (sortAction == SortAction.EVENT_DATE) {
                 query.orderBy(cb.desc(root.get("eventDate")));
-            } else if (sortAction == SortAction.LIKE) {
+            } else if (sortAction == SortAction.LIKES) {
                 Join<Event, UserEventReaction> reactionsJoin = root.join("reactions", JoinType.INNER);
                 query.groupBy(root.get("id"), reactionsJoin.get("reaction"));
                 query.orderBy(cb.desc(cb.sum(reactionsJoin.get("reaction"))));
