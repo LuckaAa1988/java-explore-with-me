@@ -20,6 +20,7 @@ import ru.practicum.user.service.UserService;
 
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -68,11 +69,18 @@ public class UserServiceImpl implements UserService {
         var pageable = PageRequest.of(from / size, size);
         log.info("Get all top events with pageable: {}", pageable);
         return reactionRepository.findAllTopUsers(from / size, size).stream()
-                .map(tuple -> UserReactionResponse.builder()
-                        .id(tuple.get(0, BigInteger.class).longValue())
-                        .name(tuple.get(1, String.class))
-                        .reaction(tuple.get(2, BigInteger.class).intValue())
-                        .build())
+                .map(tuple -> {
+                    int reaction = 0;
+                    if (tuple.get(2, BigInteger.class) != null) {
+                        reaction = tuple.get(2, BigInteger.class).intValue();
+                    }
+                    return UserReactionResponse.builder()
+                            .id(tuple.get(0, BigInteger.class).longValue())
+                            .name(tuple.get(1, String.class))
+                            .reaction(reaction)
+                            .build();
+                })
+                .sorted(Comparator.comparing(UserReactionResponse::getReaction).reversed())
                 .collect(Collectors.toList());
     }
 }

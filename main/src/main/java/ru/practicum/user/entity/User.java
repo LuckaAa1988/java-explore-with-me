@@ -5,6 +5,7 @@ import lombok.experimental.FieldDefaults;
 import ru.practicum.event.entity.UserEventReaction;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -24,5 +25,5 @@ public class User {
     @Column(name = "email")
     String email;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<UserEventReaction> reactions;
+    private Set<UserEventReaction> reactions = new HashSet<>();
 }

@@ -94,8 +94,8 @@ public class EventSpecification {
             if (order.equals("EVENT_DATE")) {
                 query.orderBy(cb.desc(root.get("eventDate")));
             } else if (order.equals("LIKES")) {
-                Join<Event, UserEventReaction> reactionsJoin = root.join("reactions", JoinType.LEFT);
-                query.groupBy(root.get("id"));
+                Join<Event, UserEventReaction> reactionsJoin = root.join("reactions", JoinType.INNER);
+                query.groupBy(root.get("id"), reactionsJoin.get("reaction"));
                 query.orderBy(cb.desc(cb.sum(reactionsJoin.get("reaction"))));
             }
             return cb.conjunction();
