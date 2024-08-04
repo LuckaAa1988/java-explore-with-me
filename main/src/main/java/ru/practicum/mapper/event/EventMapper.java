@@ -38,6 +38,10 @@ public class EventMapper {
     }
 
     public EventResponse toDto(Event event, Integer views) {
+        int reaction = 0;
+        if (event.getReactions() != null) {
+            reaction = event.getReactions().stream().mapToInt(UserEventReaction::getReaction).sum();
+        }
         return EventResponse.builder()
                 .id(event.getId())
                 .title(event.getTitle())
@@ -55,10 +59,15 @@ public class EventMapper {
                 .requestModeration(event.getRequestModeration())
                 .confirmedRequests(event.getParticipants())
                 .views(views)
+                .reactions(reaction)
                 .build();
     }
 
     public EventShortResponse toShortDto(Event event, Integer views) {
+        int reaction = 0;
+        if (event.getReactions() != null) {
+            reaction = event.getReactions().stream().mapToInt(UserEventReaction::getReaction).sum();
+        }
         return EventShortResponse.builder()
                 .id(event.getId())
                 .annotation(event.getAnnotation())
@@ -69,7 +78,7 @@ public class EventMapper {
                 .paid(event.getPaid())
                 .title(event.getTitle())
                 .views(views)
-                .reactions(event.getReactions().stream().mapToInt(UserEventReaction::getReaction).sum())
+                .reactions(reaction)
                 .build();
     }
 }
