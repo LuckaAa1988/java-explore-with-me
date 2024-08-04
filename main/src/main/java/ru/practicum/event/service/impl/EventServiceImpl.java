@@ -3,7 +3,6 @@ package ru.practicum.event.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.category.repository.CategoryRepository;
 import ru.practicum.client.StatsClient;
@@ -36,8 +35,6 @@ import ru.practicum.request.repository.RequestRepository;
 import ru.practicum.request.util.Status;
 import ru.practicum.user.repository.UserRepository;
 
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
