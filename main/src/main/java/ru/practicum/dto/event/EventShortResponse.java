@@ -24,4 +24,5 @@ public class EventShortResponse {
     Boolean paid;
     String title;
     Integer views;
+    Integer reactions;
 }

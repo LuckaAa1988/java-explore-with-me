@@ -54,6 +54,7 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    @Transactional
     public CompilationResponse save(CompilationRequest compilationRequest) {
         log.info("Add compilation with request: {}", compilationRequest);
         List<Event> events = Collections.emptyList();
@@ -75,6 +76,7 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    @Transactional
     public CompilationResponse update(Long compId, CompilationUpdateRequest compilationRequest) throws NotFoundException {
         log.info("Update compilation with id: {}, request: {}", compId, compilationRequest);
         var compilation = compilationRepository.findById(compId).orElseThrow(

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.category.repository.CategoryRepository;
 import ru.practicum.client.StatsClient;
 import ru.practicum.dto.event.EventShortResponse;
@@ -14,9 +15,13 @@ import ru.practicum.dto.request.EventRequestStatusUpdateRequest;
 import ru.practicum.dto.request.EventRequestStatusUpdateResponse;
 import ru.practicum.dto.request.RequestResponse;
 import ru.practicum.event.entity.Event;
+import ru.practicum.event.entity.UserEventReaction;
+import ru.practicum.event.entity.UserEventReactionId;
 import ru.practicum.event.repository.EventRepository;
 import ru.practicum.event.repository.LocationRepository;
+import ru.practicum.event.repository.ReactionRepository;
 import ru.practicum.event.service.EventService;
+import ru.practicum.event.util.SortAction;
 import ru.practicum.event.util.State;
 import ru.practicum.event.util.StateAction;
 import ru.practicum.exception.model.ConflictException;
@@ -33,9 +38,11 @@ import ru.practicum.request.util.Status;
 import ru.practicum.user.repository.UserRepository;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,6 +58,7 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final LocationRepository locationRepository;
     private final RequestRepository requestRepository;
+    private final ReactionRepository reactionRepository;
     private final EventMapper eventMapper;
     private final LocationMapper locationMapper;
     private final RequestMapper requestMapper;
@@ -68,6 +76,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventResponse save(Long userId, EventRequest eventRequest) throws NotFoundException {
         log.info("Add event by user id: {}, request: {}", userId, eventRequest);
         var initiator = userRepository.findById(userId).orElseThrow(
@@ -102,6 +111,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventResponse updateByUserId(Long userId, Long eventId, EventUpdateRequest eventUpdateRequest)
             throws NotFoundException, ConflictException {
         log.info("Update event by user id: {}, event id: {}", userId, eventId);
@@ -148,16 +158,24 @@ public class EventServiceImpl implements EventService {
                 throw new InvalidParametersException("Invalid parameters");
             }
         }
-        return eventRepository.findAll(byText(text)
+        SortAction sortAction = null;
+        if (sortString != null) {
+            sortAction = SortAction.valueOf(sortString);
+        }
+        var events = eventRepository.findAll(byText(text)
                         .and(byState(State.PUBLISHED))
                         .and(byCategories(categories))
                         .and(byPaid(paid))
                         .and(startDate(start))
                         .and(endDate(end))
                         .and(byAvailable(onlyAvailable))
-                        .and(orderBy(sortString)), pageable).getContent().stream()
+                        .and(orderBy(sortAction)), pageable).getContent().stream()
                 .map(e -> eventMapper.toShortDto(e, getViews("/events/" + e.getId())))
                 .collect(Collectors.toList());
+        return (sortAction == SortAction.VIEWS) ?
+                events.stream()
+                        .sorted(Comparator.comparing(EventShortResponse::getViews))
+                        .collect(Collectors.toList()) : events;
     }
 
     @Override
@@ -205,6 +223,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventResponse update(Long eventId, EventUpdateRequest eventUpdateRequest) throws NotFoundException, ConflictException {
         log.info("Update event by admin with id: {}", eventId);
         var event = eventRepository.findById(eventId).orElseThrow(
@@ -240,6 +259,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventRequestStatusUpdateResponse updateRequest(Long userId, Long eventId, EventRequestStatusUpdateRequest eventRequest) throws ConflictException, NotFoundException {
         log.info("Update event request by user id: {}, event id: {}", userId, eventId);
         var requests = requestRepository.findAllById(eventRequest.getRequestIds());
@@ -267,6 +287,60 @@ public class EventServiceImpl implements EventService {
                 .confirmedRequests(confirmedRequests)
                 .rejectedRequests(rejectedRequests)
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public EventShortResponse saveReaction(Long userId, Long eventId, String reactionString) throws NotFoundException, ConflictException {
+        log.info("Reaction {} from user id {} to event id {}", reactionString, userId, eventId);
+        var event = eventRepository.findById(eventId).orElseThrow(
+                () -> new NotFoundException(String.format(Constants.EVENT_NOT_FOUND, eventId))
+        );
+        var user = userRepository.findById(userId).orElseThrow(
+                () -> new NotFoundException(String.format(Constants.USER_NOT_FOUND, userId))
+        );
+        if (!event.getState().equals(State.PUBLISHED)) {
+            throw new ConflictException("Event not PUBLISHED");
+        }
+        if (event.getInitiator().equals(user)) {
+            throw new ConflictException("Cant add like to your event");
+        }
+        if (!requestRepository.existsByRequesterIdAndEventIdAndStatus(userId, eventId, Status.CONFIRMED)) {
+            throw new ConflictException(String.format("User with id %s didnt participate in event with id %s", userId, eventId));
+        }
+        var reactionId = UserEventReactionId.builder()
+                .eventId(eventId)
+                .userId(userId)
+                .build();
+        var reaction = UserEventReaction.builder()
+                .id(reactionId)
+                .user(user)
+                .event(event)
+                .build();
+        if (reaction.getReaction() == null) {
+            reaction.setReaction(0);
+        }
+        if (reactionString.equals("LIKE")) {
+            reaction.setReaction(1);
+        }
+        if (reactionString.equals("DISLIKE")) {
+            reaction.setReaction(-1);
+        }
+        reactionRepository.saveAndFlush(reaction);
+        return eventMapper.toShortDto(event, getViews("/event/" + eventId));
+    }
+
+    @Override
+    public List<EventShortResponse> findAllTop(Integer from, Integer size) throws InvalidParametersException {
+        if (from < 0) throw new InvalidParametersException("Invalid parameters");
+        var pageable = PageRequest.of(from / size, size);
+        log.info("Get all top events with pageable: {}", pageable);
+        var reactions = reactionRepository.findAllTop(from / size, size).stream()
+                .map(tuple -> tuple.get(0, BigInteger.class).longValue()).collect(Collectors.toList());
+        return eventRepository.findAllById(reactions).stream()
+                .map(e -> eventMapper.toShortDto(e, getViews("/events/" + e.getId())))
+                .sorted(Comparator.comparing(EventShortResponse::getReactions).reversed())
+                .collect(Collectors.toList());
     }
 
     private EventResponse getEventResponse(Long eventId, EventUpdateRequest eventUpdateRequest, Event event) throws NotFoundException {

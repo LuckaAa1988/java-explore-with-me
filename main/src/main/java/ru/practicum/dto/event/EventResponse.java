@@ -32,4 +32,5 @@ public class EventResponse {
     State state;
     String title;
     Integer views;
+    Integer reactions;
 }

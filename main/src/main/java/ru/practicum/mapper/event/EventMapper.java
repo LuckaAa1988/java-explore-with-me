@@ -8,6 +8,7 @@ import ru.practicum.dto.event.EventResponse;
 import ru.practicum.dto.event.EventShortResponse;
 import ru.practicum.event.entity.Event;
 import ru.practicum.event.entity.Location;
+import ru.practicum.event.entity.UserEventReaction;
 import ru.practicum.mapper.category.CategoryMapper;
 import ru.practicum.mapper.user.UserMapper;
 import ru.practicum.user.entity.User;
@@ -37,6 +38,10 @@ public class EventMapper {
     }
 
     public EventResponse toDto(Event event, Integer views) {
+        int reaction = 0;
+        if (event.getReactions() != null) {
+            reaction = event.getReactions().stream().mapToInt(UserEventReaction::getReaction).sum();
+        }
         return EventResponse.builder()
                 .id(event.getId())
                 .title(event.getTitle())
@@ -54,10 +59,15 @@ public class EventMapper {
                 .requestModeration(event.getRequestModeration())
                 .confirmedRequests(event.getParticipants())
                 .views(views)
+                .reactions(reaction)
                 .build();
     }
 
     public EventShortResponse toShortDto(Event event, Integer views) {
+        int reaction = 0;
+        if (event.getReactions() != null) {
+            reaction = event.getReactions().stream().mapToInt(UserEventReaction::getReaction).sum();
+        }
         return EventShortResponse.builder()
                 .id(event.getId())
                 .annotation(event.getAnnotation())
@@ -68,6 +78,7 @@ public class EventMapper {
                 .paid(event.getPaid())
                 .title(event.getTitle())
                 .views(views)
+                .reactions(reaction)
                 .build();
     }
 }

@@ -3,8 +3,12 @@ package ru.practicum.event.repository;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import ru.practicum.event.entity.Event;
+import ru.practicum.event.entity.UserEventReaction;
+import ru.practicum.event.util.SortAction;
 import ru.practicum.event.util.State;
 
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -83,15 +87,17 @@ public class EventSpecification {
         } else return (root, query, cb) -> cb.equal(root.get("participants"), root.get("participant_limit"));
     }
 
-    public static Specification<Event> orderBy(String order) {
-        if (order == null) {
+    public static Specification<Event> orderBy(SortAction sortAction) {
+        if (sortAction == null) {
             return (root, query, cb) -> cb.conjunction();
         }
         return (root, query, cb) -> {
-            if (order.equals("EVENT_DATE")) {
+            if (sortAction == SortAction.EVENT_DATE) {
                 query.orderBy(cb.desc(root.get("eventDate")));
-            } else if (order.equals("VIEWS")) {
-                query.orderBy();
+            } else if (sortAction == SortAction.LIKES) {
+                Join<Event, UserEventReaction> reactionsJoin = root.join("reactions", JoinType.INNER);
+                query.groupBy(root.get("id"), reactionsJoin.get("reaction"));
+                query.orderBy(cb.desc(cb.sum(reactionsJoin.get("reaction"))));
             }
             return cb.conjunction();
         };

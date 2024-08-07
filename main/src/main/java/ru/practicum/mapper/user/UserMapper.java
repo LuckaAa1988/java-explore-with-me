@@ -1,9 +1,11 @@
 package ru.practicum.mapper.user;
 
 import org.springframework.stereotype.Component;
+import ru.practicum.dto.user.UserReactionResponse;
 import ru.practicum.dto.user.UserRequest;
 import ru.practicum.dto.user.UserResponse;
 import ru.practicum.dto.user.UserShortResponse;
+import ru.practicum.event.entity.UserEventReaction;
 import ru.practicum.user.entity.User;
 
 @Component
@@ -28,6 +30,14 @@ public class UserMapper {
         return UserShortResponse.builder()
                 .id(initiator.getId())
                 .name(initiator.getName())
+                .build();
+    }
+
+    public UserReactionResponse toReactionDto(User user) {
+        return UserReactionResponse.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .reaction(user.getReactions().stream().mapToInt(UserEventReaction::getReaction).sum())
                 .build();
     }
 }

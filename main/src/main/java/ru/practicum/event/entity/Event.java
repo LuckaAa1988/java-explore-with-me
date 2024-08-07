@@ -9,7 +9,9 @@ import ru.practicum.user.entity.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -57,4 +59,6 @@ public class Event {
     State state;
     @ManyToMany(mappedBy = "event")
     List<Compilation> compilations;
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserEventReaction> reactions = new HashSet<>();
 }
